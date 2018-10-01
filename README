@@ -223,6 +223,9 @@ USAGE
    Tickets
         GET /tickets?query=<TicketSQL>
             search for tickets using TicketSQL
+             Ex. /REST/2.0/tickets?query=Status="open"'
+             Ex. /REST/2.0/tickets?query=CF.{MyCustomField}="True"'
+             Ex. curl -G --data-urlencode "query=id=1 AND Status='new'" -u 'root:password' 'myRT...REST/2.0/tickets'
 
         GET /tickets?simple=1;query=<simple search query>
             search for tickets using simple search syntax
@@ -281,16 +284,6 @@ USAGE
             -d 'Testing a comment'
             'https://myrt.com/REST/2.0/ticket/6/comment'
 
-        # Create an Asset
-        curl -X POST -H "Content-Type: application/json" -u 'root:password'
-            -d '{"Name" : "Asset From Rest", "Catalog" : "General assets", "Content" : "Some content"}'
-            'https://myrt.com/REST/2.0/asset'
-
-        # Search Assets
-        curl -X POST -H "Content-Type: application/json" -u 'root:password'
-        -d '[{ "field" : "id", "operator" : ">=", "value" : 0 }]'
-        'https://myrt.com/REST/2.0/asset'
-
    Transactions
         GET /transactions?query=<JSON>
         POST /transactions
@@ -346,6 +339,28 @@ USAGE
         GET /queue/:name/history
             retrieve list of transactions for queue
 
+   Queue examples
+    Below are some examples using the enpoints above.
+
+        # Create A Queue
+        curl -X POST -H "Content-Type: application/json" -u 'root:password'
+            -d '{"Name" : "NewQueue", "Description" : "A Queue For New Things"}'
+            'https://myrt.com/REST/2.0/queue'
+
+        # Get All Queues
+        curl -X GET -u 'root:password'
+            'https://myrt.com/REST/2.0/queues/all'
+
+        # Search For A Queue
+         curl -X POST -H "Content-Type: application/json" -u 'root:password'
+            -d '[{"field" : "Name", "value" : "General"}]'
+            'https://myrt.com/REST/2.0/queues'
+
+        # Update A Queue
+        curl -X PUT -H "Content-Type: application/json" -u 'root:password'
+            -d '{"Name" : "NewName", "CustomFields" : { "MyCustomField" : "UpdatedValue" } }'
+            'https://myrt.com/REST/2.0/queue/General'
+
    Assets
         GET /assets?query=<JSON>
         POST /assets
@@ -365,6 +380,29 @@ USAGE
 
         GET /asset/:id/history
             retrieve list of transactions for asset
+
+   Asset Examples
+    Below are some examples using the enpoints above.
+
+        # Create an Asset
+        curl -X POST -H "Content-Type: application/json" -u 'root:password'
+            -d '{"Name" : "Asset From Rest",
+                "Catalog" : "General assets",
+                "Description" : "Some content",
+                "CustomFields" : {"MyCustomField" : "Value On Create"}
+                }'
+            'https://myrt.com/REST/2.0/asset'
+
+        # Search Assets
+        curl -X POST -H "Content-Type: application/json" -u 'root:password'
+            -d '[{ "field" : "id", "operator" : ">=", "value" : 0 }]'
+            'https://myrt.com/REST/2.0/assets'
+
+        # Update Asset
+        curl -X PUT -H "Content-Type: application/json" -u 'root:password'
+            -d '{"Description": "A new description",
+                "CustomFields" : {"MyCustomField" : "NewValue"}}'
+            'https://myrt.com/REST/2.0/asset/2'
 
    Catalogs
         GET /catalogs/all
@@ -412,6 +450,28 @@ USAGE
         GET /user/:id/history
         GET /user/:name/history
             retrieve list of transactions for user
+
+   User examples
+    Below are some examples using the enpoints above.
+
+        # Search
+        curl -X POST -H "Content-Type: application/json"
+            -d '[{"field": "Name", "operator": "LIKE", "value" : "MyUserName"}]'
+            -u 'root:password' 'https://myrt.com/REST/2.0/users'
+
+        # Create
+        curl -X POST -H "Content-Type: application/json"
+            -d '{"Name": "TestUser", "Nickname": "Tester"}'
+            -u 'root:password' 'https://myrt.com/REST/2.0/user'
+
+        # Update
+        curl -X PUT -H "Content-Type: application/json"
+            -d '{"Name": "NewName",  "CustomFields" : {"MyCF" : "NewValue"} }'
+            -u 'root:password' 'https://myrt.com/REST/2.0/user/TestUser'
+
+        # Delete
+        curl -X DELETE -u 'root:password'
+            'http://localhost:8080/REST/2.0/user/MyUser'
 
    Groups
         GET /groups?query=<JSON>
