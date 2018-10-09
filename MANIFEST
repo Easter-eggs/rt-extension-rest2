@@ -68,6 +68,7 @@ t/asset-customfields.t
 t/assets.t
 t/catalogs.t
 t/conflict.t
+t/customfields.t
 t/group-members.t
 t/lib/RT/Extension/REST2/Test.pm.in
 t/not_found.t
