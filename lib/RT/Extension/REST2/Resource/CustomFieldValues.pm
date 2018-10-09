@@ -52,6 +52,11 @@ sub serialize {
         };
         push @results, $result;
     }
+
+    # DBIx::SearchBuilder::CountAll() seems buggy
+    # returning outdated cached value, force recount
+    $collection->{count_all} = 0;
+
     return {
         count       => scalar(@results)         + 0,
         total       => $collection->CountAll    + 0,
