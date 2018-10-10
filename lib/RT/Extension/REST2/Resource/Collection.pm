@@ -39,6 +39,8 @@ sub setup_paging {
     elsif ($per_page > 100      ) { $per_page = 100 }
     $self->collection->RowsPerPage($per_page);
 
+    # Limit passed in request hasn't be applied yet,
+    # so max_page is only an approximation here
     my $max_page = ceil($self->collection->CountAll / $self->collection->RowsPerPage);
 
     my $page = $self->request->param('page') || 1;
@@ -74,6 +76,11 @@ sub serialize {
         }
         push @results, $result;
     }
+
+    # CountAll() has already been called in setup_paging
+    # before limiting the collection, therefore we have
+    # force recount to avoid getting an outdated cache value
+    $collection->{count_all} = 0;
 
     my %results = (
         count       => scalar(@results)         + 0,

@@ -29,8 +29,8 @@ my $bravo_id = $bravo->Id;
     is($content->{pages}, 1);
     is($content->{per_page}, 20);
     is($content->{total}, 3);
-    undef($content->{prev_page});
-    undef($content->{next_page});
+    is($content->{prev_page}, undef);
+    is($content->{next_page}, undef);
     is(scalar @{$content->{items}}, 3);
 }
 
@@ -48,8 +48,8 @@ my $bravo_id = $bravo->Id;
     is($content->{pages}, 1);
     is($content->{per_page}, 3);
     is($content->{total}, 3);
-    undef($content->{prev_page});
-    undef($content->{next_page});
+    is($content->{prev_page}, undef);
+    is($content->{next_page}, undef);
     is(scalar @{$content->{items}}, 3);
 }
 
@@ -71,7 +71,7 @@ my $bravo_id = $bravo->Id;
     is($content->{pages}, 3);
     is($content->{per_page}, 1);
     is($content->{total}, 3);
-    undef($content->{prev_page});
+    is($content->{prev_page}, undef);
     like($content->{next_page}, qr[$url&page=2]);
     is(scalar @{$content->{items}}, 1);
 }
@@ -118,7 +118,7 @@ my $bravo_id = $bravo->Id;
     is($content->{per_page}, 1);
     is($content->{total}, 3);
     like($content->{prev_page}, qr[$url&page=2]);
-    undef($content->{next_page});
+    is($content->{next_page}, undef);
     is(scalar @{$content->{items}}, 1);
 }
 
@@ -140,10 +140,30 @@ for my $param ( 'per_page', 'page' ) {
         is($content->{pages}, 1);
         is($content->{per_page}, 20);
         is($content->{total}, 3);
-        undef($content->{prev_page});
-        undef($content->{next_page});
+        is($content->{prev_page}, undef);
+        is($content->{next_page}, undef);
         is(scalar @{$content->{items}}, 3);
     }
+}
+
+# Test with limit
+{
+    my $alphabis = RT::Test->load_or_create_queue( Name => 'Alphabis' );
+    my $res = $mech->post_json("$rest_base_path/queues/all?per_page=1",
+        [{field => 'Name', operator => 'LIKE', value => 'Alp'}],
+        'Authorization' => $auth,
+    );
+    is($res->code, 200);
+
+    my $content = $mech->json_response;
+    is($content->{count}, 1);
+    is($content->{page}, 1);
+    is($content->{pages}, 2);
+    is($content->{per_page}, 1);
+    is($content->{total}, 2);
+    is($content->{prev_page}, undef);
+    like($content->{next_page}, qr{/queues/all\?per_page=1&page=2$});
+    is(scalar @{$content->{items}}, 1);
 }
 
 done_testing;
