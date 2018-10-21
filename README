@@ -537,16 +537,6 @@ USAGE
             -d 'Testing a comment'
             'https://myrt.com/REST/2.0/ticket/6/comment'
 
-        # Create an Asset
-        curl -X POST -H "Content-Type: application/json" -u 'root:password'
-            -d '{"Name" : "Asset From Rest", "Catalog" : "General assets", "Content" : "Some content"}'
-            'https://myrt.com/REST/2.0/asset'
-
-        # Search Assets
-        curl -X POST -H "Content-Type: application/json" -u 'root:password'
-        -d '[{ "field" : "id", "operator" : ">=", "value" : 0 }]'
-        'https://myrt.com/REST/2.0/asset'
-
    Transactions
         GET /transactions?query=<JSON>
         POST /transactions
@@ -803,6 +793,18 @@ USAGE
         GET /customfields?query=<JSON>
         POST /customfields
             search for custom fields using L</JSON searches> syntax
+
+        GET /catalog/:id/customfields?query=<JSON>
+        POST /catalog/:id/customfields
+            search for custom fields attached to a catalog using L</JSON searches> syntax
+
+        GET /class/:id/customfields?query=<JSON>
+        POST /class/:id/customfields
+            search for custom fields attached to a class using L</JSON searches> syntax
+
+        GET /queue/:id/customfields?query=<JSON>
+        POST /queue/:id/customfields
+            search for custom fields attached to a queue using L</JSON searches> syntax
 
         POST /customfield
             create a customfield; provide JSON content
