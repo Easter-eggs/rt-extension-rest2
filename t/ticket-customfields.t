@@ -273,7 +273,7 @@ my $no_ticket_cf_values = bag(
     is($res->code, 200);
 
     $content = $mech->json_response;
-    is_deeply($content->{CustomFields}, { $single_cf_id => ['Modified Again'], $multi_cf_id => [] }, 'Same CF value');
+    cmp_deeply($content->{CustomFields}, $modified_again_single_cf_value, 'Same CF value');
 
     # fail to delete the CF if mandatory
     $single_cf->SetPattern('(?#Mandatory).');
@@ -292,7 +292,7 @@ my $no_ticket_cf_values = bag(
     is($res->code, 200);
 
     $content = $mech->json_response;
-    is_deeply($content->{CustomFields}, { $single_cf_id => ['Modified Again'], $multi_cf_id => [] }, 'Still same CF value');
+    cmp_deeply($content->{CustomFields}, $modified_again_single_cf_value, 'Still same CF value');
 
     # delete the CF
     $single_cf->SetPattern();
@@ -311,7 +311,7 @@ my $no_ticket_cf_values = bag(
     is($res->code, 200);
 
     $content = $mech->json_response;
-    is_deeply($content->{CustomFields}, { $single_cf_id => [], $multi_cf_id => [] }, 'No more CF value');
+    cmp_deeply($content->{CustomFields}, $no_ticket_cf_values, 'No more CF value');
 }
 
 # Ticket Creation with ModifyCustomField
