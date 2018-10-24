@@ -94,19 +94,6 @@ sub from_multipart {
         $json->{CustomFields} = $cfs;
     }
 
-    return $self->from_json($json);
-}
-
-sub from_multipart {
-    my $self = shift;
-    my $json_str = $self->request->parameters->{Json};
-    return error_as_json(
-        $self->response,
-        \400, "Json is a required field for multipart/form-data")
-            unless $json_str;
-
-    my $json = JSON::decode_json($json_str);
-
     my @attachments = $self->request->upload;
     if (@attachments && $attachments[0] =~ /^Attachment[_\d]*$/i) {
         $json->{AttachmentsContents} = ()
