@@ -31,30 +31,10 @@ sub _build_collection {
     return $collection;
 }
 
-sub setup_paging {
-    my $self = shift;
-    my $per_page = $self->request->param('per_page') || 20;
-    if    ($per_page !~ /^\d+$/ ) { $per_page = 20  }
-    elsif ($per_page == 0       ) { $per_page = 20  }
-    elsif ($per_page > 100      ) { $per_page = 100 }
-    $self->collection->RowsPerPage($per_page);
-
-    # Limit passed in request hasn't be applied yet,
-    # so max_page is only an approximation here
-    my $max_page = ceil($self->collection->CountAll / $self->collection->RowsPerPage);
-
-    my $page = $self->request->param('page') || 1;
-    if    ($page !~ /^\d+$/  ) { $page = 1 }
-    elsif ($page == 0        ) { $page = 1 }
-    elsif ($page > $max_page ) { $page = $max_page }
-    $self->collection->GotoPage($page - 1);
-}
-
 sub limit_collection { 1 }
 
 sub search {
     my $self = shift;
-    $self->setup_paging;
     return $self->limit_collection;
 }
 
@@ -63,6 +43,21 @@ sub serialize {
     my $collection = $self->collection;
     my @results;
     my @fields = defined $self->request->param('fields') ? split(/,/, $self->request->param('fields')) : ();
+
+    my $per_page = $self->request->param('per_page') || 20;
+    if    ($per_page !~ /^\d+$/ ) { $per_page = 20  }
+    elsif ($per_page == 0       ) { $per_page = 20  }
+    elsif ($per_page > 100      ) { $per_page = 100 }
+    $collection->RowsPerPage($per_page);
+
+    my $count_all = $collection->CountAll;
+    my $max_page = ceil($count_all / $per_page);
+
+    my $page = $self->request->param('page') || 1;
+    if    ($page !~ /^\d+$/  ) { $page = 1 }
+    elsif ($page == 0        ) { $page = 1 }
+    elsif ($page > $max_page ) { $page = $max_page }
+    $self->collection->GotoPage($page - 1);
 
     while (my $item = $collection->Next) {
         my $result = expand_uid( $item->UID );
@@ -77,16 +72,11 @@ sub serialize {
         push @results, $result;
     }
 
-    # CountAll() has already been called in setup_paging
-    # before limiting the collection, therefore we have
-    # force recount to avoid getting an outdated cache value
-    $collection->{count_all} = 0;
-
     my %results = (
-        count       => scalar(@results)         + 0,
-        total       => $collection->CountAll    + 0,
-        per_page    => $collection->RowsPerPage + 0,
-        page        => ($collection->FirstRow / $collection->RowsPerPage) + 1,
+        count       => scalar(@results) + 0,
+        total       => $count_all       + 0,
+        per_page    => $per_page        + 0,
+        page        => $page            + 0,
         items       => \@results,
     );
 
