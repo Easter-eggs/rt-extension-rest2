@@ -134,10 +134,9 @@ sub expand_field {
     # Process CF
     if ($field =~ /^C(?:ustom)?F(?:ield)?-(.+)|CF\.\{([^\}]+)\}$/) {
         my $cf_name = $1 // $2;
-        my $cf = RT::CustomField->new($self->current_user);
-        my ($cf_id, $msg) = $cf->Load($cf_name);
-        unless ($cf_id) {
-            $RT::Logger->warn("Cannot find CustomField $cf_name: $msg")
+        my $cf = $item->LoadCustomFieldByIdentifier($cf_name);
+        unless ( $cf && $cf->id ) {
+            $RT::Logger->warn("Cannot find CustomField $cf_name")
         } else {
             my $vals = $item->CustomFieldValues($cf->id);
             if ( $cf->SingleValue ) {
